@@ -8,12 +8,20 @@ namespace WinFormsApp2
 {
     internal class Engine
     {
+        //       // 8 nhân
         private static readonly Point[] connects = new Point[]
  {
         new Point(-1, -1), new Point(0, -1), new Point(1, -1),
         new Point(1, 0),   new Point(1, 1),   new Point(0, 1),
         new Point(-1, 1),  new Point(-1, 0)
  };
+
+        //4 nhân
+//        private static readonly Point[] connects = new Point[]
+//{
+//                new Point(-1, -1), new Point(0, -1),
+//                new Point(1, 0),   new Point(1, 1)
+//};
         public static Bitmap ToGrayScale(Bitmap orginal)
         {
             Bitmap grayBmp = new Bitmap(orginal.Width, orginal.Height);
@@ -91,10 +99,10 @@ namespace WinFormsApp2
             int h = original.Height;
             int[,] seemask = new int[w, h];
             Bitmap result = new Bitmap(w, h); //  width, height
-            using (Graphics g = Graphics.FromImage(result))
-            {
-                g.Clear(Color.Black);
-            }
+            //using (Graphics g = Graphics.FromImage(result))
+            //{
+            //    g.Clear(Color.Black);
+            //}
             Queue<Point> queuepoints = new Queue<Point>();
             foreach (var p in listpoint)
                 queuepoints.Enqueue(p);
@@ -106,8 +114,8 @@ namespace WinFormsApp2
             {
                 Point current = queuepoints.Dequeue();
                 seemask[current.X, current.Y] = label;
-                result.SetPixel(current.X, current.Y, Color.White);
-                for (int i = 0; i < 8; i++)
+                result.SetPixel(current.X, current.Y, Color.Black);
+                for (int i = 0; i < connects.Count<Point>(); i++)
                 {
                     int tmpX = current.X + connectsPoint[i].X;
                     int tmpY = current.Y + connectsPoint[i].Y;
@@ -131,6 +139,76 @@ namespace WinFormsApp2
             return result;
         }
 
+        //Đây là Multi-resolution Region Growing
+        public static Bitmap GrowRegion(Bitmap img, Point seed, int threshold, int levels)
+        {
+            Bitmap currentImg = img;
+            Bitmap result = null;
 
+            // Tạo pyramid đa độ phân giải
+            List<Bitmap> pyramid = new List<Bitmap>();
+            pyramid.Add(currentImg);
+            for (int i = 1; i < levels; i++)
+            {
+                int w = currentImg.Width / 2;
+                int h = currentImg.Height / 2;
+                if (w == 0 || h == 0) break;
+                Bitmap smaller = new Bitmap(currentImg, new Size(w, h));
+                pyramid.Add(smaller);
+                currentImg = smaller;
+            }
+
+            // Bắt đầu region growing từ mức thấp nhất
+            Bitmap mask = new Bitmap(pyramid[pyramid.Count - 1].Width, pyramid[pyramid.Count - 1].Height);
+            Queue<Point> q = new Queue<Point>();
+            Point scaledSeed = new Point(seed.X / (int)Math.Pow(2, levels - 1),
+                                         seed.Y / (int)Math.Pow(2, levels - 1));
+            q.Enqueue(scaledSeed);
+
+            Bitmap lowRes = pyramid[pyramid.Count - 1];
+            Color seedColor = lowRes.GetPixel(scaledSeed.X, scaledSeed.Y);
+
+            while (q.Count > 0)
+            {
+                Point p = q.Dequeue();
+                if (p.X < 0 || p.Y < 0 || p.X >= lowRes.Width || p.Y >= lowRes.Height)
+                    continue;
+                if (mask.GetPixel(p.X, p.Y).R > 0) continue;
+
+                Color c = lowRes.GetPixel(p.X, p.Y);
+                int diff = Math.Abs(c.R - seedColor.R) +
+                           Math.Abs(c.G - seedColor.G) +
+                           Math.Abs(c.B - seedColor.B);
+                if (diff < threshold)
+                {
+                    mask.SetPixel(p.X, p.Y, Color.White);
+                    q.Enqueue(new Point(p.X + 1, p.Y));
+                    q.Enqueue(new Point(p.X - 1, p.Y));
+                    q.Enqueue(new Point(p.X, p.Y + 1));
+                    q.Enqueue(new Point(p.X, p.Y - 1));
+                }
+            }
+
+            // Phóng mask lên ảnh gốc
+            result = new Bitmap(img.Width, img.Height);
+            for (int y = 0; y < img.Height; y++)
+            {
+                for (int x = 0; x < img.Width; x++)
+                {
+                    int mx = x / (int)Math.Pow(2, levels - 1);
+                    int my = y / (int)Math.Pow(2, levels - 1);
+                    if (mx >= mask.Width) mx = mask.Width - 1;
+                    if (my >= mask.Height) my = mask.Height - 1;
+
+                    Color orig = img.GetPixel(x, y);
+                    if (mask.GetPixel(mx, my).R > 0)
+                        result.SetPixel(x, y, Color.Red); // vùng phát triển tô màu
+                    else
+                        result.SetPixel(x, y, orig);
+                }
+            }
+
+            return result;
+        }
     }
 }

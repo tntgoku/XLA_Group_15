@@ -71,7 +71,7 @@ namespace WinFormsApp2
 
             foreach (var item in points)
             {
-                if (item.X > pictureBox1.Image.Width || item.Y > pictureBox2.Image.Height
+                if (item.X > pictureBox1.Image.Width || item.Y > pictureBox1.Image.Height
                     || item.X <= 0 || item.Y <= 0)
                 {
                     DialogResult result = MessageBox.Show("Điểm ảnh hạt giống trong listbox  không hợp lệ", "Warring", MessageBoxButtons.OK);
@@ -81,8 +81,9 @@ namespace WinFormsApp2
             Bitmap bmp = (Bitmap)pictureBox1.Image;
             pictureBox2.Image = Engine.ToGrayScales(bmp);
             pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
-
-            pictureBox3.Image = Engine.regionGrow((Bitmap)pictureBox2.Image, points, 15);
+            string label=textBox3.Text;
+            int labelconver = Convert.ToInt32(label);
+            pictureBox3.Image = Engine.regionGrow((Bitmap)pictureBox2.Image, points, labelconver);
             pictureBox3.SizeMode = PictureBoxSizeMode.Zoom;
         }
 

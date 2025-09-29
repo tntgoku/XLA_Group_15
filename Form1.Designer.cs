@@ -44,6 +44,8 @@
             pictureBox1 = new PictureBox();
             pictureBox2 = new PictureBox();
             pictureBox3 = new PictureBox();
+            textBox3 = new TextBox();
+            label6 = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
@@ -210,11 +212,33 @@
             pictureBox3.TabIndex = 15;
             pictureBox3.TabStop = false;
             // 
+            // textBox3
+            // 
+            textBox3.Font = new Font("Segoe UI", 10.2F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            textBox3.Location = new Point(742, 196);
+            textBox3.Multiline = true;
+            textBox3.Name = "textBox3";
+            textBox3.Size = new Size(125, 35);
+            textBox3.TabIndex = 16;
+            textBox3.Text = "123123";
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Font = new Font("Segoe UI", 10.2F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label6.Location = new Point(538, 208);
+            label6.Name = "label6";
+            label6.Size = new Size(172, 23);
+            label6.TabIndex = 17;
+            label6.Text = "Ngưỡng(Phương sai):";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1318, 721);
+            Controls.Add(label6);
+            Controls.Add(textBox3);
             Controls.Add(pictureBox3);
             Controls.Add(pictureBox2);
             Controls.Add(pictureBox1);
@@ -260,5 +284,7 @@
         private PictureBox pictureBox1;
         private PictureBox pictureBox2;
         private PictureBox pictureBox3;
+        private TextBox textBox3;
+        private Label label6;
     }
 }
